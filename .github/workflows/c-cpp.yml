@@ -32,9 +32,6 @@ jobs:
 
       - name: Configure Conan Profile
         run: |
-          # conan profile detect --name custompr --force
-          # Manually configure the Conan profile if needed
-          # conan profile show custompr > custompr.txt
           touch custompr.txt
           echo "[settings]" >> custompr.txt
           echo "arch=x86_64" >> custompr.txt
@@ -46,7 +43,7 @@ jobs:
           echo "os=Linux" >> custompr.txt
           echo "[conf]" >> custompr.txt
           echo "tools.cmake.cmaketoolchain:generator=Ninja" >> custompr.txt
-          # echo "env.tools.system.package_manager:mode=install" >> custompr.txt
+          mkdir -p ~/.conan2/profiles/
           mv custompr.txt ~/.conan2/profiles/custompr
 
       - name: Install Conan Dependencies
