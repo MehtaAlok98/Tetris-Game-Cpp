@@ -14,12 +14,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v5.2.0
-        with:
-          python-version: '3.x' # Using Python 3.x
-          cache: 'pip'           # Cache pip packages
-
       - name: Get Conan
         uses: turtlebrowser/get-conan@v1.2
         with:
