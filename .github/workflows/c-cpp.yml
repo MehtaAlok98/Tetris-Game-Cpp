@@ -14,16 +14,26 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Setup Python
+        uses: actions/setup-python@v5.2.0
+        with:
+          python-version: '3.x' # Specify the version of Python you need
+
+      - name: Install Python Packages
+        run: |
+          pip install wheel setuptools
+          pip install conan # Install the latest version of Conan
+
       - name: Get Conan
         uses: turtlebrowser/get-conan@v1.2
         with:
-          version: 'latest' # Installing the latest version of Conan
+          version: 'latest' # Ensure this is correct or specify a version if needed
 
       - name: Setup CMake and Ninja
         uses: lukka/get-cmake@v3.30.3
         with:
-          cmakeVersion: 'latest'  # Install the latest stable CMake version
-          ninjaVersion: 'latest'  # Install the latest Ninja version
+          cmakeVersion: 'latest'
+          ninjaVersion: 'latest'
 
       - name: Locate Conan Package
         uses: grisumbras/locate-conan-package@v0.2.0
@@ -33,7 +43,7 @@ jobs:
           channel: 'stable'
           user: 'conan'
 
-      - name: Install Conan dependencies
+      - name: Install Conan Dependencies
         run: |
           conan profile detect --name custompr
           conan install . --build=missing -s build_type=Release -pr=custompr
