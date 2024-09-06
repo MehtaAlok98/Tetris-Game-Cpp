@@ -48,7 +48,7 @@ jobs:
 
       - name: Install Conan Dependencies
         run: |
-          conan install . --build=missing -s build_type=Release --profile:host=custompr
+          conan install . --build=missing -s build_type=Release --profile:host=custompr --profile:build=custompr
 
       - name: Configure CMake
         run: cmake --preset conan-release
