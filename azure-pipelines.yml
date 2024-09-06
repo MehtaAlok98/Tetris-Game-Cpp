@@ -1,0 +1,62 @@
+# azure-pipelines.yml
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Debug'
+  conanProfile: 'mingw'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+  displayName: 'Install Python'
+
+- task: UseConan@1
+  inputs:
+    conanVersion: 'latest'
+  displayName: 'Install Conan'
+
+- task: UseCmake@1
+  inputs:
+    conanVersion: 'latest'
+  displayName: 'Install CMake'
+
+- task: UseNinja@1
+  inputs:
+    conanVersion: 'latest'
+  displayName: 'Install Ninja'
+
+- script: |
+    conan profile detect --name $(conanProfile)
+    conan install . --build=missing -s build_type=$(buildConfiguration) -pr=$(conanProfile)
+  displayName: 'Install Conan dependencies'
+
+- task: CMake@1
+  inputs:
+    workingDirectory: '$(Build.SourcesDirectory)'
+    cmakeRoot: 'CMake'
+    args: '-DCMAKE_BUILD_TYPE=$(buildConfiguration)'
+  displayName: 'Configure CMake'
+
+- task: CMake@1
+  inputs:
+    workingDirectory: '$(Build.SourcesDirectory)'
+    cmakeRoot: 'CMake'
+    args: '--build . --config $(buildConfiguration)'
+  displayName: 'Build with CMake'
+
+- task: CMake@1
+  inputs:
+    workingDirectory: '$(Build.SourcesDirectory)/build/$(buildConfiguration)'
+    cmakeRoot: 'CMake'
+    args: '--build . --target tests --config $(buildConfiguration)'
+  displayName: 'Build tests with CMake'
+
+- script: |
+    ctest --output-on-failure
+  workingDirectory: '$(Build.SourcesDirectory)/build/$(buildConfiguration)'
+  displayName: 'Run tests'

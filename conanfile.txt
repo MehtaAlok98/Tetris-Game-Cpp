@@ -1,0 +1,13 @@
+[requires]
+raylib/5.0
+gtest/1.15.0
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[options]
+#gtest/1.15.0:shared=True 
+
+[layout]
+cmake_layout
