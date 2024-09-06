@@ -33,8 +33,16 @@ jobs:
       - name: Configure Conan Profile
         run: |
           conan profile detect --name custompr
-          conan profile update -c tools.system.package_manager:mode=install custompr
-          conan profile update -c tools.system.generator=Ninja custompr
+          # Manually configure the Conan profile if needed
+          conan profile update settings.compiler=gcc custompr
+          conan profile update settings.compiler.version=11 custompr
+          conan profile update settings.compiler.cppstd=gnu17 custompr
+          conan profile update settings.compiler.libcxx=libstdc++11 custompr
+          conan profile update settings.build_type=Release custompr
+          conan profile update settings.arch=x86_64 custompr
+          conan profile update settings.os=Linux custompr
+          conan profile update --env tools.system.package_manager:mode=install custompr
+          conan profile update --env tools.system.generator=Ninja custompr
 
       - name: Install Conan Dependencies
         run: |
