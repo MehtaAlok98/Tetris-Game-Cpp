@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: update ubuntu
+        run: sudo apt-get upgrade -y
+        
       - name: Checkout Repository
         uses: actions/checkout@v3
 
@@ -43,6 +46,7 @@ jobs:
           echo "os=Linux" >> custompr.txt
           echo "[conf]" >> custompr.txt
           echo "tools.cmake.cmaketoolchain:generator=Ninja" >> custompr.txt
+          echo "tools.system.package_manager:mode=install" >> custompr.txt
           mkdir -p ~/.conan2/profiles/
           mv custompr.txt ~/.conan2/profiles/custompr
 
