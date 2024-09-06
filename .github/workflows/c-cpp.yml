@@ -34,15 +34,17 @@ jobs:
         run: |
           conan profile detect --name custompr
           # Manually configure the Conan profile if needed
-          conan profile update settings.compiler=gcc custompr
-          conan profile update settings.compiler.version=11 custompr
-          conan profile update settings.compiler.cppstd=gnu17 custompr
-          conan profile update settings.compiler.libcxx=libstdc++11 custompr
-          conan profile update settings.build_type=Release custompr
-          conan profile update settings.arch=x86_64 custompr
-          conan profile update settings.os=Linux custompr
-          conan profile update --env tools.system.package_manager:mode=install custompr
-          conan profile update --env tools.system.generator=Ninja custompr
+          conan profile show custompr > custompr.txt
+          echo "settings.compiler=gcc" >> custompr.txt
+          echo "settings.compiler.version=11" >> custompr.txt
+          echo "settings.compiler.cppstd=gnu17" >> custompr.txt
+          echo "settings.compiler.libcxx=libstdc++11" >> custompr.txt
+          echo "settings.build_type=Release" >> custompr.txt
+          echo "settings.arch=x86_64" >> custompr.txt
+          echo "settings.os=Linux" >> custompr.txt
+          echo "env.tools.system.package_manager:mode=install" >> custompr.txt
+          echo "env.tools.system.generator=Ninja" >> custompr.txt
+          mv custompr.txt ~/.conan2/profiles/custompr
 
       - name: Install Conan Dependencies
         run: |
