@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Python
-        uses: actions/setup-python@v5.2.0
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x' # Specify the version of Python you need
 
@@ -24,34 +24,21 @@ jobs:
           pip install wheel setuptools
           pip install conan # Install the latest version of Conan
 
-      - name: Install Conan
-        run: pip install --upgrade conan
-        # shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
-
-
-      # - name: Get Conan
-      #   uses: turtlebrowser/get-conan@v1.2
-      #   with:
-      #     version: 'latest' # Ensure this is correct or specify a version if needed
-
       - name: Setup CMake and Ninja
         uses: lukka/get-cmake@v3.30.3
         with:
           cmakeVersion: 'latest'
           ninjaVersion: 'latest'
 
-      - name: Locate Conan Package
-        uses: grisumbras/locate-conan-package@v0.2.0
-        with:
-          name: 'raylib'
-          version: '5.0'
-          channel: 'stable'
-          user: 'conan'
+      - name: Configure Conan Profile
+        run: |
+          conan profile detect --name custompr
+          conan profile update -c tools.system.package_manager:mode=install custompr
+          conan profile update -c tools.system.generator=Ninja custompr
 
       - name: Install Conan Dependencies
         run: |
-          conan profile detect --name custompr
-          conan install . --build=missing -s build_type=Release --profile:build=custompr -pr=custompr
+          conan install . --build=missing -s build_type=Release --profile custompr
 
       - name: Configure CMake
         run: cmake --preset conan-release
@@ -65,4 +52,4 @@ jobs:
         working-directory: ./build/Release/
 
       - name: Run the Executable
-        run: ./build/Release/bin/TetrisGame.exe
+        run: ./build/Release/bin/TetrisGame
