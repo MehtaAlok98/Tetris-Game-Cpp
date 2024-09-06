@@ -1,0 +1,59 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v5.2.0
+        with:
+          python-version: '3.x' # Using Python 3.x
+          cache: 'pip'           # Cache pip packages
+
+      - name: Get Conan
+        uses: turtlebrowser/get-conan@v1.2
+        with:
+          version: 'latest' # Installing the latest version of Conan
+
+      - name: Setup CMake and Ninja
+        uses: lukka/get-cmake@v3.30.3
+        with:
+          cmakeVersion: 'latest'  # Install the latest stable CMake version
+          ninjaVersion: 'latest'  # Install the latest Ninja version
+
+      - name: Locate Conan Package
+        uses: grisumbras/locate-conan-package@v0.2.0
+        with:
+          name: 'raylib'
+          version: '5.0'
+          channel: 'stable'
+          user: 'conan'
+
+      - name: Install Conan dependencies
+        run: |
+          conan profile detect --name custompr
+          conan install . --build=missing -s build_type=Release -pr=custompr
+
+      - name: Configure CMake
+        run: cmake --preset conan-release
+
+      - name: Build Project
+        run: cmake --build ./build/Release/
+
+      - name: Run Tests
+        run: |
+          ctest --verbose
+        working-directory: ./build/Release/
+
+      - name: Run the Executable
+        run: ./build/Release/bin/TetrisGame.exe
