@@ -12,6 +12,7 @@ Game::Game()
       deltaTime(GetTime()) {
     InitWindow(windowWidth, windowHeight, "TETRIS");
 
+    Game::points = 0;
     allBlocks = {
         new Blocks::LBlock(grid),
         new Blocks::IBlock(grid),
