@@ -1,0 +1,70 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  conanProfile: 'custompr'
+
+steps:
+- script: |
+    sudo apt-get update
+    sudo apt-get install -y libgl-dev libgl1-mesa-dev libx11-dev libx11-xcb-dev libfontenc-dev libice-dev libsm-dev libxau-dev libxaw7-dev pkg-config libxcb-util-dev libxcb-util0-dev libx11-dev libx11-xcb-dev libfontenc-dev libice-dev libsm-dev libxau-dev libxaw7-dev libxcomposite-dev libxcursor-dev libxdamage-dev libxfixes-dev libxi-dev libxinerama-dev libxkbfile-dev libxmuu-dev libxrandr-dev libxrender-dev libxres-dev libxss-dev libxtst-dev libxv-dev libxxf86vm-dev libxcb-glx0-dev libxcb-render0-dev libxcb-render-util0-dev libxcb-xkb-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-dri3-dev uuid-dev libxcb-cursor-dev libxcb-dri2-0-dev libxcb-present-dev libxcb-composite0-dev libxcb-ewmh-dev libxcb-res0-dev
+  displayName: 'Install Dependencies'
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+  displayName: 'Install Python'
+
+- script: |
+    pip install conan
+  displayName: 'Install Conan'
+
+- script: |
+    wget https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-linux.zip
+    unzip ninja-linux.zip
+    sudo mv ninja /usr/local/bin/
+  displayName: 'Install Ninja'
+
+- script: |
+    conan profile new $(conanProfile) --detect
+    conan profile update settings.arch=x86_64 $(conanProfile)
+    conan profile update settings.build_type=Release $(conanProfile)
+    conan profile update settings.compiler=gcc $(conanProfile)
+    conan profile update settings.compiler.cppstd=gnu17 $(conanProfile)
+    conan profile update settings.compiler.libcxx=libstdc++11 $(conanProfile)
+    conan profile update settings.compiler.version=11 $(conanProfile)
+    conan profile update settings.os=Linux $(conanProfile)
+    conan profile update env.CC=/usr/bin/gcc $(conanProfile)
+    conan profile update env.CXX=/usr/bin/g++ $(conanProfile)
+    conan install . --build=missing -s build_type=Release --profile $(conanProfile)
+  displayName: 'Configure Conan Profile and Install Dependencies'
+
+- task: CMake@1
+  inputs:
+    workingDirectory: '$(Build.SourcesDirectory)'
+    cmakeArgs: '--preset conan-release'
+  displayName: 'Configure CMake'
+
+- task: CMake@1
+  inputs:
+    workingDirectory: '$(Build.SourcesDirectory)'
+    cmakeArgs: '--build build/$(buildConfiguration)'
+  displayName: 'Build with CMake'
+
+- script: |
+    ctest --verbose
+  workingDirectory: '$(Build.SourcesDirectory)/build/$(buildConfiguration)'
+  displayName: 'Run Tests'
+
+- script: |
+    timeout 15s ./build/Release/bin/TetrisGame || true
+  displayName: 'Run Executable with Timeout'
