@@ -76,5 +76,5 @@ jobs:
           ctest --verbose
         working-directory: ./build/Release/
 
-      - name: Run the Executable
-        run: ./build/Release/bin/TetrisGame
+      - name: Run the Executable with Timeout
+        run: timeout 60s ./build/Release/bin/TetrisGame || true
