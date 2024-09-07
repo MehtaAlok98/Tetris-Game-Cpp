@@ -3,12 +3,12 @@
 
 // Test the Game class
 TEST(GameTest, PointsInitializationTest) {
-    Game game;
+    // Game game;
     EXPECT_EQ(Game::points, 0);
 }
 
 TEST(GameTest, PointsIncrementTest) {
-    Game game;
+    // Game game;
     Game::points += 100;
     EXPECT_EQ(Game::points, 100);
 }
