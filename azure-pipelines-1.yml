@@ -35,17 +35,21 @@ steps:
   displayName: 'Install Ninja'
 
 - script: |
-    conan profile new $(conanProfile) --detect
-    conan profile update settings.arch=x86_64 $(conanProfile)
-    conan profile update settings.build_type=Release $(conanProfile)
-    conan profile update settings.compiler=gcc $(conanProfile)
-    conan profile update settings.compiler.cppstd=gnu17 $(conanProfile)
-    conan profile update settings.compiler.libcxx=libstdc++11 $(conanProfile)
-    conan profile update settings.compiler.version=11 $(conanProfile)
-    conan profile update settings.os=Linux $(conanProfile)
-    conan profile update env.CC=/usr/bin/gcc $(conanProfile)
-    conan profile update env.CXX=/usr/bin/g++ $(conanProfile)
-    conan install . --build=missing -s build_type=Release --profile $(conanProfile)
+    conan profile detect
+    echo "[settings]" > custompr.txt
+    echo "arch=x86_64" >> custompr.txt
+    echo "build_type=Release" >> custompr.txt
+    echo "compiler=gcc" >> custompr.txt
+    echo "compiler.cppstd=gnu17" >> custompr.txt
+    echo "compiler.libcxx=libstdc++11" >> custompr.txt
+    echo "compiler.version=11" >> custompr.txt
+    echo "os=Linux" >> custompr.txt
+    echo "[conf]" >> custompr.txt
+    echo "tools.cmake.cmaketoolchain:generator=Ninja" >> custompr.txt
+    echo "tools.system.package_manager:mode=install" >> custompr.txt
+    mkdir -p ~/.conan2/profiles/
+    mv custompr.txt ~/.conan2/profiles/custompr
+    conan install . --build=missing -s build_type=$(buildConfiguration) --profile:build=$(conanProfile)
   displayName: 'Configure Conan Profile and Install Dependencies'
 
 - task: CMake@1
